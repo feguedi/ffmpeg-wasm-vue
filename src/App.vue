@@ -1,80 +1,12 @@
 <script setup>
-import { computed, onMounted, ref, unref } from 'vue';
-import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
-
-const imagenArchivo = ref();
-const sonidoArchivo = ref();
-const videoSrc = ref('');
-const ffmpeg = ref(null);
-
-const ffmpegLoaded = computed(() => ffmpeg.value?.isLoaded());
-
-function handleImagenArchivo(e) {
-  e.preventDefault();
-  console.log('handleImagenArchivo');
-  const file = e.target.files[0];
-  imagenArchivo.value = file;
-}
-
-function handleSonidoArchivo(e) {
-  e.preventDefault();
-  console.log('handleSonidoArchivo');
-  const file = e.target.files[0];
-  sonidoArchivo.value = file;
-}
-
-async function crearVideo() {
-  try {
-    console.log('crearVideo inicio');
-
-    ffmpeg.value.FS('writeFile', 'image.png', await fetchFile(new Blob([unref(imagenArchivo)], { type: 'image/*' })));
-    ffmpeg.value.FS('writeFile', 'sound.mp3', await fetchFile(new Blob([unref(sonidoArchivo)], { type: 'sound/*' })));
-
-    await ffmpeg.value.run('-framerate', '1/10', '-i', 'image.png', '-i', 'sound.mp3', '-vcodec', 'libx264', '-t', '00:00:10', '-pix_fmt', 'yuv420p', '-vf', 'scale=1920:1080', 'test.mp4');
-    const data = await ffmpeg.value.FS('readFile', 'test.mp4');
-
-    videoSrc.value = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
-    console.log('crearVideo fin');
-  } catch (error) {
-    console.error('crearVideo error:', error.message || error);
-    throw new Error();
-  }
-}
-
-async function initFFmpeg() {
-  try {
-    if (!ffmpegLoaded.value) {
-      await ffmpeg.value.load();
-    }
-  } catch (error) {
-    throw new Error(error);
-  }
-}
-
-onMounted(async () => {
-  ffmpeg.value = createFFmpeg({
-    log: true,
-    corePath: '/ffmpeg-core.js',
-  });
-
-  initFFmpeg()
-    .catch(e => console.error(e));
-});
+import { RouterView } from 'vue-router';
 </script>
 
 <template>
-  <div class="mi-app">
-    <video :src="videoSrc" controls></video>
-
-    <input type="file" id="imagen" accept="image/*" :onChange="handleImagenArchivo">
-
-    <input type="file" id="sonido" accept="sound/*" :onChange="handleSonidoArchivo">
-
-    <button :onClick="crearVideo">Crear video</button>
-  </div>
+  <RouterView />
 </template>
 
-<style scoped>
+<style>
 .logo {
   height: 6em;
   padding: 1.5em;
