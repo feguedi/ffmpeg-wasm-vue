@@ -1,13 +1,13 @@
 <script setup>
-import { ref, unref } from 'vue';
+import { computed, onMounted, ref, unref } from 'vue';
 import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 
 const imagenArchivo = ref();
 const sonidoArchivo = ref();
 const videoSrc = ref('');
-const ffmpeg = createFFmpeg({
-  log: true,
-});
+const ffmpeg = ref(null);
+
+const ffmpegLoaded = computed(() => ffmpeg.value?.isLoaded());
 
 function handleImagenArchivo(e) {
   e.preventDefault();
@@ -26,12 +26,12 @@ function handleSonidoArchivo(e) {
 async function crearVideo() {
   try {
     console.log('crearVideo inicio');
-    await ffmpeg.load();
-    ffmpeg.FS('writeFile', 'image.png', await fetchFile(new Blob([unref(imagenArchivo)], { type: 'image/*' })));
-    ffmpeg.FS('writeFile', 'sound.mp3', await fetchFile(new Blob([unref(sonidoArchivo)], { type: 'sound/*' })));
 
-    await ffmpeg.run('-framerate', '1/10', '-i', 'image.png', '-i', 'sound.mp3', '-vcodec', 'libx264', '-t', '00:00:10', '-pix_fmt', 'yuv420p', '-vf', 'scale=1920:1080', 'test.mp4');
-    const data = await ffmpeg.FS('readFile', 'test.mp4');
+    ffmpeg.value.FS('writeFile', 'image.png', await fetchFile(new Blob([unref(imagenArchivo)], { type: 'image/*' })));
+    ffmpeg.value.FS('writeFile', 'sound.mp3', await fetchFile(new Blob([unref(sonidoArchivo)], { type: 'sound/*' })));
+
+    await ffmpeg.value.run('-framerate', '1/10', '-i', 'image.png', '-i', 'sound.mp3', '-vcodec', 'libx264', '-t', '00:00:10', '-pix_fmt', 'yuv420p', '-vf', 'scale=1920:1080', 'test.mp4');
+    const data = await ffmpeg.value.FS('readFile', 'test.mp4');
 
     videoSrc.value = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
     console.log('crearVideo fin');
@@ -40,6 +40,26 @@ async function crearVideo() {
     throw new Error();
   }
 }
+
+async function initFFmpeg() {
+  try {
+    if (!ffmpegLoaded.value) {
+      await ffmpeg.value.load();
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+onMounted(async () => {
+  ffmpeg.value = createFFmpeg({
+    log: true,
+    corePath: '/ffmpeg-core.js',
+  });
+
+  initFFmpeg()
+    .catch(e => console.error(e));
+});
 </script>
 
 <template>
