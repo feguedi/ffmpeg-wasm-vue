@@ -7,12 +7,26 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
+      meta: {
+        transition: 'slide-left',
+      },
       component: HomeView,
     },
     {
       path: '/cap',
       name: 'capturer',
+      meta: {
+        transition: 'slide-left',
+      },
       component: () => import('../views/CapturerView.vue'),
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      meta: {
+        transition: 'fade-out',
+      },
+      component: () => import('../views/NotFoundView.vue'),
     },
   ],
 });

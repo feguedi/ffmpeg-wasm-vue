@@ -3,7 +3,12 @@ import { RouterView } from 'vue-router';
 </script>
 
 <template>
-  <RouterView />
+  <RouterView v-slot="{ Component, route }">
+    <!-- Use any custom transition and fallback to `fade` -->
+    <transition :name="route.meta.transition || 'fade'">
+      <component :is="Component" />
+    </transition>
+  </RouterView>
 </template>
 
 <style>
