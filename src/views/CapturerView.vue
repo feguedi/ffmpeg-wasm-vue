@@ -16,7 +16,10 @@
       <input type="text" name="nombre-video" id="nombre-video">
     </div>
 
-    <button>Iniciar</button>
+    <button
+    >
+      Iniciar
+    </button>
   </div>
 </template>
 
