@@ -1,7 +1,7 @@
 <script setup>
 import { useHome } from '../hooks';
 
-const { videoSrc, handleImagenArchivo, handleSonidoArchivo, crearVideo } = useHome();
+const { videoSrc, handleImagenArchivo, handleSonidoArchivo, crearVideo, progressMessage, logMessage } = useHome();
 </script>
 
 
@@ -9,11 +9,23 @@ const { videoSrc, handleImagenArchivo, handleSonidoArchivo, crearVideo } = useHo
   <div class="mi-app">
     <video :src="videoSrc" controls></video>
 
-    <input type="file" id="imagen" accept="image/*" :onChange="handleImagenArchivo">
-
-    <input type="file" id="sonido" accept="sound/*" :onChange="handleSonidoArchivo">
+    <label for="imagen">Imagen</label>
+    <input type="file" id="imagen" accept="image/*" @change="handleImagenArchivo" />
+    
+    <label for="sonido">Sonido</label>
+    <input type="file" id="sonido" accept="sound/*" @change="handleSonidoArchivo" />
 
     <button :onClick="crearVideo">Crear video</button>
+
+    <div style="display: flex; flex-direction: row; margin: auto">
+      <h4>Logs</h4>
+      <span>{{ logMessage }}</span>
+    </div>
+
+    <div style="display: flex; flex-direction: row; margin: auto">
+      <h4>Progreso</h4>
+      <span>{{ progressMessage }}</span>
+    </div>
   </div>
 </template>
 
